@@ -2,9 +2,12 @@
 
 #include <sourcemod>
 #include <sdktools>
+#include <sdktools_sound>
 #include <sdkhooks>
 
 #include <emitsoundany>
+
+new Handle:JUMPALL = INVALID_HANDLE;
 
 new Handle:JUMPT = INVALID_HANDLE;
 new Handle:JUMPCT = INVALID_HANDLE;
@@ -17,7 +20,7 @@ public Plugin:myinfo =
 	name = "[CS:GO] Jump Sound",
 	author = "Kento",
 //	Kento Is Handsome???
-	version = "1.0.0",
+	version = "1.1",
 	description = "Play A Sound When Player Jump",
 	url = ""
 };
@@ -40,8 +43,10 @@ public OnPluginStart()
 {
 	HookEvent("player_jump", OnPlayerJump);
 	
-	JUMPT = CreateConVar("sm_jumpsound_t", "ccc/ccc.mp3", "T Jump Sound");
-	JUMPCT = CreateConVar("sm_jumpsound_ct", "ccc/ccc.mp3", "CT Jump Sound");
+	JUMPALL = CreateConVar("sm_jumpsound_all", "0", "Play Sound To All Player Or Not");
+		
+	JUMPT = CreateConVar("sm_jumpsound_t", "ccc.mp3", "T Jump Sound");
+	JUMPCT = CreateConVar("sm_jumpsound_ct", "ccc.mp3", "CT Jump Sound");
 	
 	HookConVarChange(JUMPT, ConvarChange_JUMP);
 	HookConVarChange(JUMPCT, ConvarChange_JUMP);
@@ -56,11 +61,11 @@ public OnMapStart()
 	
 	new String:FullJUMPTFILE[PLATFORM_MAX_PATH];
 	Format(FullJUMPTFILE,sizeof(FullJUMPTFILE),"sound/%s",JUMPTFILE[Sound]);
-	AddFileToDownloadsTable(FullJUMPTFILE);
+	AddFileToDownloadsTable(JUMPTFILE[Sound]);
 	
 	new String:FullJUMPCTFILE[PLATFORM_MAX_PATH];
 	Format(FullJUMPCTFILE,sizeof(FullJUMPCTFILE),"sound/%s",JUMPCTFILE[Sound]);
-	AddFileToDownloadsTable(FullJUMPCTFILE);
+	AddFileToDownloadsTable(JUMPCTFILE[Sound]);
 	
 	PrecacheSoundAny(JUMPTFILE[Sound]);
 	PrecacheSoundAny(JUMPCTFILE[Sound]);
@@ -99,13 +104,31 @@ public Action OnPlayerJump(Handle:event, const String:name[], bool:dontBroadcast
 	
 	if (GetClientTeam(Client) == TR)
 	{
-		EmitSoundToAllAny(JUMPTFILE[Sound]); 		
-		return Plugin_Handled;
+		if (GetConVarInt(JUMPALL) == 1)
+		{
+			EmitSoundToAllAny(JUMPTFILE[Sound]); 		
+			return Plugin_Handled;
+		}
+		
+		else if (GetConVarInt(JUMPALL) == 0)
+		{
+			EmitSoundToClientAny(Client, JUMPTFILE[Sound]); 		
+			return Plugin_Handled;
+		}
 	}
 	else if (GetClientTeam(Client) == CT)
 	{
-		EmitSoundToAllAny(JUMPCTFILE[Sound]);
-		return Plugin_Handled;
+		if (GetConVarInt(JUMPALL) == 1)
+		{
+			EmitSoundToAllAny(JUMPCTFILE[Sound]);
+			return Plugin_Handled;
+		}
+		
+		else if (GetConVarInt(JUMPALL) == 0)
+		{
+			EmitSoundToClientAny(Client, JUMPCTFILE[Sound]); 		
+			return Plugin_Handled;
+		}
 	}
 	return Plugin_Handled;
 }
