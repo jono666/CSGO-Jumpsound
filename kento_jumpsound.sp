@@ -20,7 +20,7 @@ public Plugin:myinfo =
 	name = "[CS:GO] Jump Sound",
 	author = "Kento",
 //	Kento Is Handsome???
-	version = "1.1",
+	version = "1.1.1",
 	description = "Play A Sound When Player Jump",
 	url = ""
 };
@@ -61,11 +61,11 @@ public OnMapStart()
 	
 	new String:FullJUMPTFILE[PLATFORM_MAX_PATH];
 	Format(FullJUMPTFILE,sizeof(FullJUMPTFILE),"sound/%s",JUMPTFILE[Sound]);
-	AddFileToDownloadsTable(JUMPTFILE[Sound]);
+	AddFileToDownloadsTable(FullJUMPTFILE);
 	
 	new String:FullJUMPCTFILE[PLATFORM_MAX_PATH];
 	Format(FullJUMPCTFILE,sizeof(FullJUMPCTFILE),"sound/%s",JUMPCTFILE[Sound]);
-	AddFileToDownloadsTable(JUMPCTFILE[Sound]);
+	AddFileToDownloadsTable(FullJUMPTFILE);
 	
 	PrecacheSoundAny(JUMPTFILE[Sound]);
 	PrecacheSoundAny(JUMPCTFILE[Sound]);
